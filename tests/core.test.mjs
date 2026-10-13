@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {generate,vehicles,nearest,advanceCheckpoints,time,simplify} from '../dist/core.mjs';
+test('all 34 vehicles have distinct valid handling profiles',()=>{assert.equal(vehicles.length,34);assert.equal(new Set(vehicles.map(v=>v.name)).size,34);for(const v of vehicles){assert.ok(v.top>0&&v.accel>0&&v.grip>0);assert.ok(v.length>0&&v.width>0)}assert.notEqual(vehicles[0].grip,vehicles[14].grip)});
+test('daily tracks are deterministic and all generators stay inside editor',()=>{for(const type of ['flowing','technical','oval','kart']){assert.deepEqual(generate(type,12),generate(type,12));assert.ok(generate(type,12).every(p=>p.x>0&&p.x<1&&p.y>0&&p.y<1))}assert.notDeepEqual(generate('flowing',12),generate('flowing',13))});
+test('ordered checkpoints prevent finish-line shortcuts',()=>{const s={nextCheckpoint:1,lastIndex:0};assert.equal(advanceCheckpoints(s,990,1000,true),false);assert.equal(advanceCheckpoints(s,1,1000,true),false);assert.equal(s.nextCheckpoint,1)});
+test('a complete circuit records exactly one lap',()=>{const s={nextCheckpoint:1,lastIndex:0};let laps=0;for(let i=0;i<1000;i++)laps+=advanceCheckpoints(s,i,1000,true)?1:0;assert.equal(laps,0);assert.equal(advanceCheckpoints(s,0,1000,true),true);assert.equal(advanceCheckpoints(s,1,1000,true),false)});
+test('off-road checkpoints do not advance',()=>{const s={nextCheckpoint:1,lastIndex:0};advanceCheckpoints(s,45,1000,false);assert.equal(s.nextCheckpoint,1)});
+test('rally finish requires final checkpoint and actual end of stage',()=>{const s={nextCheckpoint:1,lastIndex:0};for(let i=0;i<997;i++)assert.equal(advanceCheckpoints(s,i,1000,true,false),false);assert.equal(advanceCheckpoints(s,997,1000,true,false),true)});
+test('nearest track lookup, readable timing and drawing simplification',()=>{assert.equal(nearest([{x:0,z:0},{x:10,z:5}],9,5).index,1);assert.equal(time(61.234),'1:01.234');assert.equal(time(Infinity),'—');assert.equal(simplify([{x:0,y:0},{x:.001,y:0},{x:.1,y:.1}]).length,2)});
