@@ -60,3 +60,11 @@ npx -y firebase-tools@latest deploy --only hosting --project YOUR_PROJECT_ID
 Replace `YOUR_PROJECT_ID` with the actual ID from the Firebase console. Firebase Hosting serves a public URL; a private GitHub repository does not make the hosted game private. The Firebase deployment has not been performed yet.
 
 Saved tracks and records are scoped to each browser origin. Moving from Sites to a Firebase URL starts a separate set of local saves; existing saves are not automatically migrated.
+
+## F1 engine profile
+
+Formula One (vehicle ID 1) uses parameters from the user-supplied `source-engines/ferrari-f138-v8.mr`: Ferrari Tipo 056-2013 V8, firing order 1-5-3-7-4-8-2-6, 18,000 RPM redline, seven original ratios, 3.5 final drive and 14-inch tyre radius. `dist/f1-engine.mjs` applies these to automatic gear/RPM behaviour and an additive combustion-pulse sound. The Formula E keeps its existing sound.
+
+This is a **synthetic approximation**, not the original simulator audio. It does not execute `.mr`, solve combustion/exhaust flow, or use the script's impulse responses. Idle (4,000 RPM), shift timing and tonal filtering are game-side choices. To reproduce the original sound, run the supplied script in a compatible Engine Simulator and record RPM/load loops. The source file is retained unchanged for that workflow.
+
+Engine profile tests: `node --test tests/f1-engine.test.mjs`. Audio node routing is checked with a test stub; listening in a real browser remains unverified.

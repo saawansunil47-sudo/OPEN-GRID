@@ -3,7 +3,9 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import * as Three from '../dist/three.module.js';
-import * as Core from '../dist/core.mjs';
+import * as BaseCore from '../dist/core.mjs';
+import * as Engine from '../dist/f1-engine.mjs';
+const Core={...BaseCore,...Engine};
 const html=fs.readFileSync(new URL('../dist/index.html',import.meta.url),'utf8');
 class Element{
  constructor(id=''){this.id=id;this.value='';this.checked=false;this.hidden=false;this.width=800;this.height=600;this.style={};this.children=[];this.listeners={};this.dataset={};this.textContent='';this.classList={add(){},remove(){},toggle(){}};this.open=false;this.clientWidth=1000;this.clientHeight=700;}
@@ -27,10 +29,12 @@ globalThis.window=globalThis;globalThis.addEventListener=()=>{};globalThis.devic
 Object.defineProperty(globalThis,'navigator',{value:{getGamepads:()=>[]},configurable:true});
 class Renderer{constructor(){this.domElement=new Element();this.shadowMap={}}setPixelRatio(){}setSize(){}render(){}}
 let code=fs.readFileSync(new URL('../dist/game.js',import.meta.url),'utf8').replace(/^import .*;\n/gm,'');
-const api=Function('T',...Object.keys(Core),code+'\nreturn {settings,get samples(){return samples},get player(){return player},get elapsed(){return elapsed},get bots(){return bots},get driving(){return driving},buildTrack,startGame,tick,animate,backToEditor,pauseGame,resume,garage,library,makeCar,get keys(){return keys},vehicles};')({...Three,WebGLRenderer:Renderer},...Object.values(Core));
+const api=Function('T',...Object.keys(Core),code+'\nreturn {settings,set selected(v){selected=v},get f1State(){return f1State},get samples(){return samples},get player(){return player},get elapsed(){return elapsed},get bots(){return bots},get driving(){return driving},buildTrack,startGame,tick,animate,backToEditor,pauseGame,resume,garage,library,makeCar,get keys(){return keys},vehicles};')({...Three,WebGLRenderer:Renderer},...Object.values(Core));
 assert.equal(api.samples.length>300,true);api.garage();assert.equal(elements.get('carGrid').children.length,34);api.library();assert.equal(elements.get('trackGrid').children.length,7);
 for(const v of Core.vehicles){const g=api.makeCar(v);assert.ok(g.children.length>=8);g.traverse(o=>{if(o.geometry)for(const n of o.geometry.attributes.position.array)assert.ok(Number.isFinite(n))})}
 api.startGame();for(let i=0;i<80;i++)api.tick(1/60);api.keys.w=true;for(let i=0;i<180;i++)api.tick(1/60);assert.ok(Math.hypot(api.player.vx,api.player.vz)>3,'Throttle accelerates');assert.ok(Number.isFinite(api.player.x));assert.ok(api.bots.every(b=>Number.isFinite(b.x)&&b.distance>0));api.animate(100);let prior=api.elapsed;api.pauseGame();api.tick(1/60);assert.equal(api.elapsed,prior);api.resume();api.backToEditor();assert.equal(api.driving,false);
 for(const mode of['race','rally','drag']){api.settings.mode=mode;api.buildTrack();api.startGame();for(let i=0;i<260;i++)api.tick(1/60);api.animate(200);assert.ok(Number.isFinite(api.player.x));api.backToEditor()}
 for(const biome of['alpine','desert','forest','city','snow']){api.settings.biome=biome;api.settings.mode='practice';api.buildTrack();assert.ok(api.samples.every(p=>Number.isFinite(p.y)))}
 console.log('PASS: app boot, 34 car models, garage, library, acceleration, AI, pause, camera/HUD, four modes, and six environments. WebGL visual QA not performed.');
+
+api.selected=1;api.settings.mode='practice';api.settings.ai=0;api.buildTrack();api.startGame();for(let i=0;i<80;i++)api.tick(1/60);api.keys.w=true;for(let i=0;i<180;i++)api.tick(1/60);api.animate(300);assert.ok(api.f1State.rpm>4000);assert.equal(elements.get('engineReadout').hidden,false);api.pauseGame();api.resume();api.backToEditor();console.log('PASS: Formula One engine profile and RPM/gear HUD integration.');
