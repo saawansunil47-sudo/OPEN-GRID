@@ -79,3 +79,11 @@ Engine profile tests: `node --test tests/f1-engine.test.mjs`. Audio node routing
 - Versioned app/module URLs prevent reuse of previous JavaScript. The footer identifies this build explicitly.
 
 Run `node --test tests/*.test.mjs` and `node tests/smoke.mjs`. Real-browser visual and listening QA remains unavailable in the build environment.
+
+## Elevation studio — build 2026.10.14-C
+
+The full-width studio uses top-toolbar menus for Layout, Road & scenery, Session and Elevation. Open Elevation to select a numbered layout point and set its height from 0–150 metres with the slider or numeric field. Preview in 3D shows the road and barriers following the new profile. Session → Rally stage makes the route open-ended. Save circuit includes point heights; dragging, reversing and undo retain them. Rolling hills replaces all point heights with a generated profile; Flatten all resets them. Existing saved circuits without point heights retain their former rolling-hills profile.
+
+Main headings request locally installed Bauhaus 93. No proprietary font file is bundled; devices without the font use a fallback. A properly licensed webfont is needed for identical typography on all devices.
+
+Validation includes integration checks for elevation geometry, dragging, save/load, reverse and undo. Browser visual QA was unavailable in this environment.
