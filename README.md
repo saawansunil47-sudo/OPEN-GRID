@@ -87,3 +87,6 @@ The full-width studio uses top-toolbar menus for Layout, Road & scenery, Session
 Main headings request locally installed Bauhaus 93. No proprietary font file is bundled; devices without the font use a fallback. A properly licensed webfont is needed for identical typography on all devices.
 
 Validation includes integration checks for elevation geometry, dragging, save/load, reverse and undo. Browser visual QA was unavailable in this environment.
+
+### Elevation geometry repair — build 2026.10.14-D
+Height interpolation is now bounded between adjacent point heights, avoiding spline dips below the ground. Track-aligned embankments replace coarse terrain triangles across the roadway. Kerbs, fence wires and barrier lengths follow grades, and cars pitch with the sampled road slope. Regression tests cover isolated peaks/valleys and exact control-point heights. Browser visual verification remains unavailable.

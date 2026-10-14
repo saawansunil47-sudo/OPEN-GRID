@@ -8,7 +8,8 @@ import * as Engine from '../dist/f1-engine.mjs';
 import * as Driving from '../dist/driving.mjs';
 import * as Walls from '../dist/track-walls.mjs';
 import * as Audio from '../dist/sample-audio.mjs';
-const Core={...BaseCore,...Engine,...Driving,...Walls,...Audio};
+import * as Elevation from '../dist/elevation.mjs';
+const Core={...Elevation,...BaseCore,...Engine,...Driving,...Walls,...Audio};
 const html=fs.readFileSync(new URL('../dist/index.html',import.meta.url),'utf8');
 class Element{
  constructor(id=''){this.id=id;this.value='';this.checked=false;this.hidden=false;this.width=800;this.height=600;this.style={};this.children=[];this.listeners={};this.dataset={};this.textContent='';this.classList={add(){},remove(){},toggle(){}};this.open=false;this.clientWidth=1000;this.clientHeight=700;}
@@ -52,3 +53,5 @@ api.choosePoint(0);api.setPointElevation(22);elements.get('reverseBtn').click();
 elements.get('flattenTrack').click();assert.ok(api.settings.points.every(p=>p.height===0));elements.get('undoBtn').click();assert.equal(api.settings.points[1].height,65);
 api.library();elements.get('trackGrid').children.at(-1).click();assert.equal(api.settings.points[1].height,65);assert.equal(api.settings.mode,'rally');
 console.log('PASS: point elevation changes geometry and survives dragging, save/load, reverse and undo.');
+
+assert.ok(api.samples.every(p=>p.y>=0),"Elevated road never dips below base terrain");
