@@ -5,7 +5,10 @@ import assert from 'node:assert/strict';
 import * as Three from '../dist/three.module.js';
 import * as BaseCore from '../dist/core.mjs';
 import * as Engine from '../dist/f1-engine.mjs';
-const Core={...BaseCore,...Engine};
+import * as Driving from '../dist/driving.mjs';
+import * as Walls from '../dist/track-walls.mjs';
+import * as Audio from '../dist/sample-audio.mjs';
+const Core={...BaseCore,...Engine,...Driving,...Walls,...Audio};
 const html=fs.readFileSync(new URL('../dist/index.html',import.meta.url),'utf8');
 class Element{
  constructor(id=''){this.id=id;this.value='';this.checked=false;this.hidden=false;this.width=800;this.height=600;this.style={};this.children=[];this.listeners={};this.dataset={};this.textContent='';this.classList={add(){},remove(){},toggle(){}};this.open=false;this.clientWidth=1000;this.clientHeight=700;}

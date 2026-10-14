@@ -1,0 +1,11 @@
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+export function sampleMix(revs,throttle,shift=0){const mix=clamp(.12+revs*.72+throttle*.18,.1,.96);return{idle:Math.cos(mix*Math.PI/2)*.48,race:Math.sin(mix*Math.PI/2)*.55,rate:.72+revs*.82,cut:shift>0?.18:1}}
+export class SampleEngine{
+ constructor(context){this.context=context;this.ready=false;this.failed=false;this.layers=[];this.output=context.createGain();this.output.gain.value=0;this.filter=context.createBiquadFilter();this.filter.type='lowpass';this.filter.frequency.value=6000;this.compressor=context.createDynamicsCompressor();this.compressor.threshold.value=-16;this.compressor.ratio.value=4;this.filter.connect(this.output).connect(this.compressor).connect(context.destination);this.loading=null;}
+ load(){if(this.loading)return this.loading;this.loading=Promise.all(['idle-loop.wav','race-loop.wav'].map(async name=>{const r=await fetch(new URL('audio/'+name,import.meta.url));if(!r.ok)throw Error('Sound download failed: '+r.status);return this.context.decodeAudioData(await r.arrayBuffer())})).then(buffers=>{for(const buffer of buffers){const source=this.context.createBufferSource(),gain=this.context.createGain();source.buffer=buffer;source.loop=true;gain.gain.value=0;source.connect(gain).connect(this.filter);source.start();this.layers.push({source,gain})}this.ready=true;return true}).catch(()=>{this.failed=true;return false});return this.loading;}
+ update(revs,throttle,vehicle,active,shift=0){if(!this.ready)return;const now=this.context.currentTime,mix=sampleMix(revs,throttle,shift),pitch=vehicle.id===1?1.6:['bike','kart','formula'].includes(vehicle.type)?1.3:['bus','tractor','racetruck','truck','monster','fire'].includes(vehicle.type)?.65:.94;
+ this.layers[0].source.playbackRate.setTargetAtTime((.75+revs*.9)*pitch,now,.035);this.layers[1].source.playbackRate.setTargetAtTime(mix.rate*pitch,now,.035);
+ this.layers[0].gain.gain.setTargetAtTime(mix.idle,now,.045);this.layers[1].gain.gain.setTargetAtTime(mix.race,now,.045);
+ this.filter.frequency.setTargetAtTime(1600+revs*5500+throttle*1700,now,.06);this.output.gain.setTargetAtTime(active?mix.cut*(.48+.52*throttle):0,now,.015);}
+ silence(){const p=this.output.gain;p.cancelScheduledValues(this.context.currentTime);p.setValueAtTime(0,this.context.currentTime)}
+}

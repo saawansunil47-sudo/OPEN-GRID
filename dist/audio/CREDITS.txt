@@ -1,0 +1,18 @@
+Open Grid recorded engine layers
+
+idle-loop.wav
+Source: "racing car engine sound loops", loop_0.wav
+Author: domasx2
+https://opengameart.org/content/racing-car-engine-sound-loops
+Licence: CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/
+
+race-loop.wav
+Source: "Car Engine Loop 96kHz, 4s", engine-loop-1-normalized.wav
+Author: qubodup
+https://opengameart.org/content/car-engine-loop-96khz-4s
+Used under CC BY 3.0 https://creativecommons.org/licenses/by/3.0/
+
+Both recordings were downmixed to mono, resampled to 22,050 Hz, DC-corrected,
+level-normalised and crossfaded at the loop seam for this game.
+These are generic car recordings, not recordings of a Ferrari F138.
+Vehicle profiles alter pitch and filtering; they are not 34 distinct recordings.

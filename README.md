@@ -63,8 +63,19 @@ Saved tracks and records are scoped to each browser origin. Moving from Sites to
 
 ## F1 engine profile
 
-Formula One (vehicle ID 1) uses parameters from the user-supplied `source-engines/ferrari-f138-v8.mr`: Ferrari Tipo 056-2013 V8, firing order 1-5-3-7-4-8-2-6, 18,000 RPM redline, seven original ratios, 3.5 final drive and 14-inch tyre radius. `dist/f1-engine.mjs` applies these to automatic gear/RPM behaviour and an additive combustion-pulse sound. The Formula E keeps its existing sound.
+Formula One (vehicle ID 1) uses parameters from the user-supplied `source-engines/ferrari-f138-v8.mr`: Ferrari Tipo 056-2013 V8, firing order 1-5-3-7-4-8-2-6, 18,000 RPM redline, seven original ratios, 3.5 final drive and 14-inch tyre radius. `dist/f1-engine.mjs` applies these to automatic gear/RPM behaviour. The default audio now uses recorded generic engine loops; additive synthesis remains only a download-failure fallback. The Formula E keeps its existing sound.
 
-This is a **synthetic approximation**, not the original simulator audio. It does not execute `.mr`, solve combustion/exhaust flow, or use the script's impulse responses. Idle (4,000 RPM), shift timing and tonal filtering are game-side choices. To reproduce the original sound, run the supplied script in a compatible Engine Simulator and record RPM/load loops. The source file is retained unchanged for that workflow.
+The recordings are **generic car audio**, not the original simulator audio or Ferrari recordings. It does not execute `.mr`, solve combustion/exhaust flow, or use the script's impulse responses. Idle (4,000 RPM), shift timing and tonal filtering are game-side choices. To reproduce the original sound, run the supplied script in a compatible Engine Simulator and record RPM/load loops. The source file is retained unchanged for that workflow.
 
 Engine profile tests: `node --test tests/f1-engine.test.mjs`. Audio node routing is checked with a test stub; listening in a real browser remains unverified.
+
+## Build 2026.10.14-B: sampled audio and handling
+
+- Two bundled recorded engine loops, mixed by RPM and throttle, replace synthesis by default. The in-race AUDIO indicator reports loading, recorded playback, or download failure. Per-vehicle pitch profiles reuse these samples; this is not a pack of 34 distinct vehicle recordings. Credits and licence links are in `dist/audio/CREDITS.txt` and the game's Help dialog. No CDN required.
+- Smoothed keyboard steering, speed-dependent steering lock and bounded yaw; tyre slip damps quickly unless the handbrake is applied. Brake-to-reverse has a delay.
+- Continuous segment-based road contact and wall sliding remove vertex snapping. Fixed-step physics positions are interpolated for rendering. Existing lap records remain stored under the old handling version; new records are separate for fairness.
+- All CSS backdrop blur removed. There was no motion-blur postprocessing. The camera no longer trails behind through position smoothing, and high-quality rendering uses up to native 2x pixel density.
+- Instanced concrete panels, three steel rails, fence posts, reflectors, fasteners and wire catch fencing line both sides of the circuit. The Barriers toggle controls the full assembly.
+- Versioned app/module URLs prevent reuse of previous JavaScript. The footer identifies this build explicitly.
+
+Run `node --test tests/*.test.mjs` and `node tests/smoke.mjs`. Real-browser visual and listening QA remains unavailable in the build environment.
